@@ -46,10 +46,12 @@ steps:
   inputs:
     targetType: 'inline'
     script: 'install-module selenium -Confirm:$False -Force'
+    pwsh: true
 
 
 - task: PowerShell@2
   displayName: 'dostuff'
   inputs:
     targetType: filePath
-    filePath: ./VMWareSecurityAdvisory-toTeams/main.ps1
+    filePath: ./main.ps1
+    pwsh: true
