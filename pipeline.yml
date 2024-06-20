@@ -22,7 +22,7 @@ steps:
   fetchDepth: 0
 
 - task: PowerShell@2
-  displayName: installing ImportExcel
+  displayName: install firerfox
   inputs:
     targetType: 'inline'
     script: |
@@ -32,7 +32,17 @@ steps:
       Start-Process -FilePath $output -ArgumentList '/S' -Wait -NoNewWindow
 
 - task: PowerShell@2
-  displayName: installing ImportExcel
+  displayName: install vc redistibute
+  inputs:
+    targetType: 'inline'
+    script: |
+      $url = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+      $output = "$env:Temp\vc_redist.exe"
+      Invoke-WebRequest -Uri $url -OutFile $output
+      Start-Process -FilePath $output -ArgumentList '/install', '/quiet', '/norestart' -Wait -NoNewWindow
+
+- task: PowerShell@2
+  displayName: installing selenium
   inputs:
     targetType: 'inline'
     script: 'install-module selenium -Confirm:$False -Force'
