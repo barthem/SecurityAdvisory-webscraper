@@ -1,0 +1,36 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+# disable CI and enable schedule
+pr: none 
+trigger: none 
+schedules:
+- cron: '0 5 * * 1'
+  displayName: create dienst boarditems voor infrateam om 7:00 (UTC tijd +2 voor onze tijdzone.)
+  branches:
+    include: [ master ]
+  always: true # whether to always run the pipeline or only if there have been source code changes since the last successful scheduled run. The default is false
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- checkout: self
+  persistCredentials: true
+  fetchDepth: 0
+
+- task: PowerShell@2
+  displayName: installing ImportExcel
+  inputs:
+    targetType: 'inline'
+    script: 'install-module Importexcel -Confirm:$False -Force -RequiredVersion 7.8.6'
+
+- task: PowerShell@2
+  displayName: 'Call boarditems Script'
+  inputs:
+    targetType: filePath
+    filePath: ./rooster/maak-boarditems.ps1
+  env:
+    pattoken: $(secretPatToken) #AzureDevops PAT token, wordt meegegeven als secret variabel in de pipeline zelf. Mocht je hem moeten vervangen, kijk naar in de pipeline -> variabelen
