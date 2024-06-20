@@ -78,7 +78,7 @@ $Rows | ForEach-Object -Parallel {
 }
     
     # vraag de datum vandaag op. 
-    $dateoftoday = (get-date -day 18 -month 6 -year 2024).ToString("dd MMMM yyyy")
+    $dateoftoday = (get-date).ToString("dd MMMM yyyy")
 
     #parse row naar individuele cellen met info
     $Cells = $_.FindElementsByTagName("td")
