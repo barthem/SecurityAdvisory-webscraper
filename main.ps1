@@ -35,7 +35,7 @@ $Rows = $tableContent.FindElementsByTagName("tr")
 $Rows | ForEach-Object -Parallel {
 
     #functie om advisory naar teams te posten, moet in de loop geplaatst worden omdat die parralel draait. 
-    $webhookUrl = "https://ogd.webhook.office.com/webhookb2/05a60ba5-2c9a-46ad-9190-1cd78429d0b9@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/9278ec4c40dc472cb80ec3c6f2d12123/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
+    $webhookUrl = "https://ogd.webhook.office.com/webhookb2/e268ccf5-d2fd-4cb2-abbe-90f7fe7720ea@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/7e3718e9645a452aad07d2f6127ea978/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
     function Send-TeamsNotification {
         param(
             [Parameter(Mandatory = $true)]
