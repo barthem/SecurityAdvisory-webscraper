@@ -46,6 +46,7 @@ steps:
   inputs:
     targetType: 'inline'
     script: 'install-module selenium -Confirm:$False -Force'
+    pwsh: true
 
 
 - task: PowerShell@2
@@ -53,3 +54,4 @@ steps:
   inputs:
     targetType: filePath
     filePath: ./main.ps1
+    pwsh: true
