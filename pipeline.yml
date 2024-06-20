@@ -50,7 +50,7 @@ steps:
 
 
 - task: PowerShell@2
-  displayName: 'dostuff'
+  displayName: 'get broadcom notices'
   inputs:
     targetType: filePath
     filePath: ./main.ps1
