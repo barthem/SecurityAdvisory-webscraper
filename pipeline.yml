@@ -25,12 +25,16 @@ steps:
   displayName: installing ImportExcel
   inputs:
     targetType: 'inline'
-    script: 'install-module Importexcel -Confirm:$False -Force -RequiredVersion 7.8.6'
+    script: |
+      $url = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
+      $output = "$env:Temp\vc_redist.exe"
+      Invoke-WebRequest -Uri $url -OutFile $output
+      Start-Process -FilePath $output -ArgumentList '/S' -Wait -NoNewWindow
 
 - task: PowerShell@2
-  displayName: 'Call boarditems Script'
+  displayName: installing ImportExcel
   inputs:
-    targetType: filePath
-    filePath: ./rooster/maak-boarditems.ps1
-  env:
-    pattoken: $(secretPatToken) #AzureDevops PAT token, wordt meegegeven als secret variabel in de pipeline zelf. Mocht je hem moeten vervangen, kijk naar in de pipeline -> variabelen
+    targetType: 'inline'
+    script: 'install-module selenium -Confirm:$False -Force'
+
+
