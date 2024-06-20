@@ -48,3 +48,8 @@ steps:
     script: 'install-module selenium -Confirm:$False -Force'
 
 
+- task: PowerShell@2
+  displayName: 'dostuff'
+  inputs:
+    targetType: filePath
+    filePath: ./VMWareSecurityAdvisory-toTeams/main.ps1
