@@ -7,8 +7,8 @@
 pr: none 
 trigger: none 
 schedules:
-- cron: '0 5 * * 1'
-  displayName: create dienst boarditems voor infrateam om 7:00 (UTC tijd +2 voor onze tijdzone.)
+- cron: '0 5 * * *'
+  displayName: check voor nieuwe vmware advisories om 7:00 (UTC tijd +2 voor onze tijdzone.)
   branches:
     include: [ master ]
   always: true # whether to always run the pipeline or only if there have been source code changes since the last successful scheduled run. The default is false
