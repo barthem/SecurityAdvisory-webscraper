@@ -1,11 +1,15 @@
-# Navigate to the URL
+# import selenium module
 import-module selenium 
 
 # $currentDate = (Get-Date).ToString("dd MMMM yyyy")
 
-
+#urls gevonden op https://blogs.vmware.com/security/2024/05/where-did-my-vmware-security-advisories-go.html
 $url = "https://support.broadcom.com/web/ecx/security-advisory?segment=VC"
+
+#start firefox webengine, maak hem headless (geen gui) omndat die draait als pipeline
 $Driver = Start-SeFirefox -headless
+
+#navigeer naar VMWare advisory page
 $Driver.Navigate().GoToUrl($url)
 
 # Find the table by ID or class (adjust this according to your specific case)
@@ -20,25 +24,17 @@ $Driver.Navigate().GoToUrl($url)
 # FindElementsByTagName
 
 
-
-
-
-
-
-
-$DataArray = @()
-
-# foreach ($Row in $Rows) {
-
+#vraag table html code op 
 $tablecontent = $Driver.FindElementByTagName("tbody")
 # $tablecontent.GetAttribute("outerHTML")
 
+#lees de individuele table telements uit. 
 $Rows = $tableContent.FindElementsByTagName("tr")
 
-
-
+#parse alle individuele table elements, indien die van vandaag waren post hem in teams. 
 $Rows | ForEach-Object -Parallel {
 
+    #functie om advisory naar teams te posten, moet in de loop geplaatst worden omdat die parralel draait. 
     $webhookUrl = "https://ogd.webhook.office.com/webhookb2/05a60ba5-2c9a-46ad-9190-1cd78429d0b9@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/9278ec4c40dc472cb80ec3c6f2d12123/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
     function Send-TeamsNotification {
         param(
@@ -83,14 +79,15 @@ $Rows | ForEach-Object -Parallel {
     
     $dateoftoday = (get-date -day 8 -month 5 -year 2024).ToString("dd MMMM yyyy")
 
+    #parse row naar individuele cellen met info
     $Cells = $_.FindElementsByTagName("td")
 
     # $Cells = $Rows[$iii].FindElementsByTagName("td")
 
-    # Get the anchor tag from the first cell which contains the URL of the advisory
+    # lees de URL uit van de eerste element die lijdt naar advisory 
     $DocumentLink = $Cells[0].FindElementByTagName("a")
 
-    # Create a custom object for each row, now including the URL from the DocumentID cell
+    # parse de cellen van de advisory table row. 
     $issue = [PSCustomObject]@{
         DocumentID      = $Cells[0].Text
         DocumentURL     = $DocumentLink.GetAttribute("href")
@@ -100,18 +97,18 @@ $Rows | ForEach-Object -Parallel {
         PublishedDate   = $Cells[4].Text
         LastUpdated     = $Cells[5].Text
     }
-    write-host "sending a message about $($issue.Title)"
 
-    write-host "comparing: $dateoftoday with  $($issue.PublishedDate)"
+    #write-host "comparing: $dateoftoday with  $($issue.PublishedDate)"
+
     if($dateoftoday -eq $issue.PublishedDate ){
-        write-host "############$($issue.Title)########################"
+        write-host "found new advisory. posting it to teams. "
         Send-TeamsNotification -Issue $issue -WebhookUrl $webhookUrl
     }
 
     # Send-TeamsNotification -Issue $issue -WebhookUrl $webhookUrl
 }
 
-
+write-host "closing webdriver."
 $Driver.quit()
 
 
