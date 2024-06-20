@@ -52,4 +52,4 @@ steps:
   displayName: 'dostuff'
   inputs:
     targetType: filePath
-    filePath: ./VMWareSecurityAdvisory-toTeams/main.ps1
+    filePath: ./main.ps1
