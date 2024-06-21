@@ -7,11 +7,12 @@
 pr: none 
 trigger: none 
 schedules:
-- cron: '0 5 * * *'
-  displayName: check voor nieuwe vmware advisories om 7:00 (UTC tijd +2 voor onze tijdzone.)
+- cron: '0 */4 * * *'
+  displayName: "Check voor nieuwe  advisories iedere 4 uur"
   branches:
     include: [ master ]
-  always: true # whether to always run the pipeline or only if there have been source code changes since the last successful scheduled run. The default is false
+  always: true # Whether to always run the pipeline or only if there have been source code changes since the last successful scheduled run. The default is false
+
 
 pool:
   vmImage: windows-latest
@@ -50,8 +51,15 @@ steps:
 
 
 - task: PowerShell@2
-  displayName: 'get broadcom notices'
+  displayName: 'get broadcom vmwar security advisories'
   inputs:
     targetType: filePath
     filePath: ./main.ps1
+    pwsh: true
+
+- task: PowerShell@2
+  displayName: 'get veeam security advisories'
+  inputs:
+    targetType: filePath
+    filePath: ./veeam.ps1
     pwsh: true
