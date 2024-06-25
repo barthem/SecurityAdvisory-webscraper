@@ -7,8 +7,8 @@
 pr: none 
 trigger: none 
 schedules:
-- cron: '0 */4 * * *'
-  displayName: "Check voor nieuwe  advisories iedere 4 uur"
+- cron: '0 */12 * * *'
+  displayName: "Check voor nieuwe  advisories iedere 12 uur"
   branches:
     include: [ master ]
   always: true # Whether to always run the pipeline or only if there have been source code changes since the last successful scheduled run. The default is false
