@@ -115,9 +115,11 @@ $Driver.quit()
 
 # vraag de datum vandaag op. 
 $dateoftoday = (get-date).ToString("dd MMMM yyyy")
+write-host "date of today: $dateoftoday "
+
 
 #check if one of the security advisories was of today
-$issues | ForEach-Object -ThrottleLimit 10 -Parallel {
+$issues | ForEach-Object{
     $currentSecurityAdvisory = $_
 
     write-host "processing $($currentSecurityAdvisory.DocumentID).`nrelease date: $($currentSecurityAdvisory.PublishedDate)`n"
