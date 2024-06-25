@@ -27,21 +27,21 @@ function Send-TeamsNotification {
 <b>Support Products:</b> $($Issue.Product)<br>
 <b>DatePublished:</b> $($Issue.DatePublished)<br>
 "@
-}
+    }
 
-# Convert the object to JSON
-$TeamMessageBody = ConvertTo-Json -InputObject $JSONBody -Depth 10 -Compress
+    # Convert the object to JSON
+    $TeamMessageBody = ConvertTo-Json -InputObject $JSONBody -Depth 10 -Compress
 
-# Set up parameters for Invoke-RestMethod
-$parameters = @{
-    URI         = $WebhookUrl
-    Method      = 'POST'
-    Body        = $TeamMessageBody
-    ContentType = 'application/json'
-}
+    # Set up parameters for Invoke-RestMethod
+    $parameters = @{
+        URI         = $WebhookUrl
+        Method      = 'POST'
+        Body        = $TeamMessageBody
+        ContentType = 'application/json'
+    }
 
-# Send the notification
-Invoke-RestMethod @parameters
+    # Send the notification
+    Invoke-RestMethod @parameters
 }
 
 
@@ -56,7 +56,7 @@ $articles = $Driver.FindElementsByClassName($classname)
 
 
 # Loop through each article and extract the required information
-$articleData = $articles| foreach-object -Parallel {
+$articleData = $articles | foreach-object -Parallel {
     write-host "processing article..."
     $article = $_
 
@@ -69,13 +69,15 @@ $articleData = $articles| foreach-object -Parallel {
     # Extract date and product using regex or string manipulation
     $datePublished = if ($description -match 'Date published: (\d{4}-\d{2}-\d{2})') {
         $matches[1]
-    } else {
+    }
+    else {
         'Unknown'
     }
 
     $product = if ($description -match '\| Product: (.+)$') {
         $matches[1]
-    } else {
+    }
+    else {
         'Unknown'
     }
 
@@ -96,11 +98,11 @@ $dateoftoday = (get-date).ToString("yyyy-MM-dd")
 $articleData | foreach-object {
     write-host "processing $($_.Name) $($_.Title)"
     
-if($_.DatePublished -eq $dateoftoday ){
+    if ($_.DatePublished -eq $dateoftoday ) {
 
-    Write-Host " article $($_.name) is from today!. posting it to teams"
-    Send-TeamsNotification -Issue $_ -WebhookUrl $webhookUrl
-}
+        Write-Host " article $($_.name) is from today!. posting it to teams"
+        Send-TeamsNotification -Issue $_ -WebhookUrl $webhookUrl
+    }
 }
 
 # Cleanup
