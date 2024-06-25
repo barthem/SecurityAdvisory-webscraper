@@ -60,53 +60,60 @@ $Rows | ForEach-Object -Parallel {
 <b>Published Date:</b> $($Issue.PublishedDate)<br>
 <b>Last Updated:</b> $($Issue.LastUpdated)
 "@
+        }
+
+        # Convert the object to JSON
+        $TeamMessageBody = ConvertTo-Json -InputObject $JSONBody -Depth 10 -Compress
+
+        # Set up parameters for Invoke-RestMethod
+        $parameters = @{
+            URI         = $WebhookUrl
+            Method      = 'POST'
+            Body        = $TeamMessageBody
+            ContentType = 'application/json'
+        }
+
+        # Send the notification
+        Invoke-RestMethod @parameters
     }
-
-    # Convert the object to JSON
-    $TeamMessageBody = ConvertTo-Json -InputObject $JSONBody -Depth 10 -Compress
-
-    # Set up parameters for Invoke-RestMethod
-    $parameters = @{
-        URI         = $WebhookUrl
-        Method      = 'POST'
-        Body        = $TeamMessageBody
-        ContentType = 'application/json'
-    }
-
-    # Send the notification
-    Invoke-RestMethod @parameters
-}
     
     # vraag de datum vandaag op. 
     $dateoftoday = (get-date).ToString("dd MMMM yyyy")
 
-    #parse row naar individuele cellen met info
-    $Cells = $_.FindElementsByTagName("td")
 
-    # $Cells = $Rows[$iii].FindElementsByTagName("td")
+    try {
+        #parse row naar individuele cellen met info
+        $Cells = $_.FindElementsByTagName("td")
 
-    # lees de URL uit van de eerste element die lijdt naar advisory 
-    $DocumentLink = $Cells[0].FindElementByTagName("a")
+        # $Cells = $Rows[$iii].FindElementsByTagName("td")
 
-    # parse de cellen van de advisory table row. 
-    $issue = [PSCustomObject]@{
-        DocumentID      = $Cells[0].Text
-        DocumentURL     = $DocumentLink.GetAttribute("href")
-        Title           = $Cells[1].Text
-        SupportProducts = $Cells[2].Text
-        Severity        = $Cells[3].Text
-        PublishedDate   = $Cells[4].Text
-        LastUpdated     = $Cells[5].Text
+        # lees de URL uit van de eerste element die lijdt naar advisory 
+        $DocumentLink = $Cells[0].FindElementByTagName("a")
+
+        # parse de cellen van de advisory table row. 
+        $issue = [PSCustomObject]@{
+            DocumentID      = $Cells[0].Text
+            DocumentURL     = $DocumentLink.GetAttribute("href")
+            Title           = $Cells[1].Text
+            SupportProducts = $Cells[2].Text
+            Severity        = $Cells[3].Text
+            PublishedDate   = $Cells[4].Text
+            LastUpdated     = $Cells[5].Text
+        }
+
+        #write-host "comparing: $dateoftoday with  $($issue.PublishedDate)"
+
+        if ($dateoftoday -eq $issue.PublishedDate ) {
+            write-host "found new advisory. posting it to teams. "
+            Send-TeamsNotification -Issue $issue -WebhookUrl $webhookUrl
+        }
+
+        # Send-TeamsNotification -Issue $issue -WebhookUrl $webhookUrl
+
     }
-
-    #write-host "comparing: $dateoftoday with  $($issue.PublishedDate)"
-
-    if($dateoftoday -eq $issue.PublishedDate ){
-        write-host "found new advisory. posting it to teams. "
-        Send-TeamsNotification -Issue $issue -WebhookUrl $webhookUrl
+    catch [OpenQA.Selenium.StaleElementReferenceException] {
+        "stale element, skipping this run i gues?" | out-warning
     }
-
-    # Send-TeamsNotification -Issue $issue -WebhookUrl $webhookUrl
 }
 
 write-host "closing webdriver."

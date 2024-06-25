@@ -54,7 +54,7 @@ steps:
   displayName: 'get broadcom vmwar security advisories'
   inputs:
     targetType: filePath
-    filePath: ./main.ps1
+    filePath: ./vmware.ps1
     pwsh: true
 
 - task: PowerShell@2
