@@ -69,12 +69,11 @@ do {
         exit 
     }
 
-} until (
-        
+} until (      
     <# Condition that stops the loop if it returns true #>
-    $null -ne $tablecontent.displayed
-        
+    $null -ne $tablecontent.displayed       
 )
+
 #vraag table html code op 
 $tablecontent = $Driver.FindElementByTagName("tbody")
 
