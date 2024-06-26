@@ -69,14 +69,6 @@ steps:
 
 
 - task: PowerShell@2
-  displayName: 'get veeam security advisories'
-  inputs:
-    targetType: filePath
-    filePath: ./veeam.ps1
-    pwsh: true
-  continueOnError: true
-
-- task: PowerShell@2
   displayName: 'get dell security advisories'
   inputs:
     targetType: filePath
