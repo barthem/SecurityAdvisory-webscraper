@@ -4,6 +4,21 @@ Import-Module Selenium
 $url = "https://www.dell.com/support/security/en-us"
 $webhookUrl = "https://ogd.webhook.office.com/webhookb2/e268ccf5-d2fd-4cb2-abbe-90f7fe7720ea@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/2c2f8ffef3ce4fb8acd36244a4d92ba4/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
 
+#only post items if they contain one of these keywords. 
+$whitelist = @(
+    "DRAC",
+    "poweredge",
+    "BIOS",
+    "POWERSTORE",
+    "live optics",
+    "dell update manager",
+    "UEFI",
+    "TPM",
+    "intel",
+    "powervault",
+    "unity"
+)
+
 function Send-TeamsNotification {
     param(
         [Parameter(Mandatory = $true)]
@@ -76,6 +91,7 @@ do {
 # Get all the rows in the table body
 $rows = $tableBody.FindElementsByClassName("dds__tr")
 
+
 $advisories = $rows | ForEach-Object -ThrottleLimit 10 -Parallel {
     $columns = $_.FindElementsByClassName("dds__td")
 
@@ -99,6 +115,12 @@ $advisories = $rows | ForEach-Object -ThrottleLimit 10 -Parallel {
 }
 
 
+#create a regexpattern from all the products in the whitelist 
+$regexPattern = ($whitelist | ForEach-Object { [regex]::Escape($_) }) -join '|'
+
+#remove entries that dont contain the whitelisted keywords
+$advisories = $advisories |Where-Object {$_.Title -match $regexPattern}
+
 # get date of today, in the format of the security advisory. 
 $dateoftoday = (get-date).ToString("MMM dd yyyy").ToUpper()
 
@@ -106,6 +128,7 @@ $dateoftoday = (get-date).ToString("MMM dd yyyy").ToUpper()
 $advisories | foreach-object {
     write-host "processing  $($_.Title)"
     
+    #compare published to date of today
     if ($_.Published -eq $dateoftoday ) {
         Write-Host " article $($_.Title) is from today!. posting it to teams"
         Send-TeamsNotification -Issue $_ -WebhookUrl $webhookUrl
