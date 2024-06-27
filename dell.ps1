@@ -85,7 +85,6 @@ do {
 )
 write-host "retrieval of html body was succesful!"
 
-
 write-host "click on button to sort advisories on publisheddate - ascending"
 #column with all the headers in it
 $tableheadercolumn = $Driver.FindElementByClassName("dds__thead")
@@ -102,20 +101,59 @@ $individualTableHeaders = $tableheadercolumn.FindElementsByClassName("dds__th")
 #click on published tab
 $individualTableHeaders[4].click()
 
-#find action menu that gets triggered by the click
-$ActiveActionmenu = $Driver.FindElementByClassName("dds__action-menu__container--visible")
+# get action menus, one should have been triggered by the click
+$tableheadercolumn = $Driver.FindElementSByClassName("dds__action-menu")
 
-# $ActiveActionmenu .GetAttribute("outerHTML")
 
-$buttons = $activeActionMenu.FindElementsByTagName("button")
-<#buttons!
-0 - unsorted
-1 - ascending
-2 - descending 
-#>
+# <#
+# 0 - impact 
+# 1 - titel
+# 2 - type 
+# 3 - CVE id
+# 4 - published
+# 5 - updated
+# #>
+$buttons = $tableheadercolumn[4].FindElementsByTagName("button")
 
-#click on descending
+# <#buttons!
+# 0 - unsorted
+# 1 - ascending
+# 2 - descending 
+# #>
 $buttons[2].click()
+
+
+
+# write-host "click on button to sort advisories on publisheddate - ascending"
+# #column with all the headers in it
+# $tableheadercolumn = $Driver.FindElementByClassName("dds__thead")
+# $individualTableHeaders = $tableheadercolumn.FindElementsByClassName("dds__th")
+
+# <#
+# 0 - impact 
+# 1 - titel
+# 2 - type 
+# 3 - CVE id
+# 4 - published
+# 5 - updated
+# #>
+# #click on published tab
+# $individualTableHeaders[4].click()
+
+# #find action menu that gets triggered by the click
+# $ActiveActionmenu = $Driver.FindElementByClassName("dds__action-menu__container--visible")
+
+# # $ActiveActionmenu .GetAttribute("outerHTML")
+
+# $buttons = $activeActionMenu.FindElementsByTagName("button")
+# <#buttons!
+# 0 - unsorted
+# 1 - ascending
+# 2 - descending 
+# #>
+
+# #click on descending
+# $buttons[2].click()
 
 
 # # Find the table body element
@@ -159,7 +197,8 @@ $dateoftoday = (get-date).ToString("MMM dd yyyy").ToUpper()
 
 #check if a new advisory was posted today, if yes post to teams 
 $advisories | foreach-object {
-    write-host "processing  $($_.Title)"
+    write-host "processing  $($_.Title) `npublished: "
+
     
     #compare published to date of today
     if ($_.Published -eq $dateoftoday ) {
