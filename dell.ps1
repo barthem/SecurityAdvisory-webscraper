@@ -2,7 +2,7 @@ Import-Module Selenium
 
 # Setup the URL and the driver
 $url = "https://www.dell.com/support/security/en-us"
-$webhookUrl = "https://ogd.webhook.office.com/webhookb2/e268ccf5-d2fd-4cb2-abbe-90f7fe7720ea@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/2c2f8ffef3ce4fb8acd36244a4d92ba4/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
+$webhookUrl = "https://ogd.webhook.office.com/webhookb2/e268ccf5-d2fd-4cb2-abbe-90f7fe7720ea@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/f4a9cfcb58d44b9e90d5cf900720edd1/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
 
 #only post items if they contain one of these keywords. 
 $whitelist = @(
@@ -62,14 +62,14 @@ function Send-TeamsNotification {
 
 
 # Setup the URL and the driver
-$Driver = Start-SeFirefox #-headless
+$Driver = Start-SeFirefox 
 $Driver.Navigate().GoToUrl($url)
-
 
 #try reading the pbody max 5 times. 
 $i = 0
 do {
-    write-host "reading tbody"
+    write-host "attempting to read html tbody"
+    write-host "attempt number: $i"
     $tableBody = $driver.FindElementByClassName("dds__tbody")
     # $tablecontent.GetAttribute("outerHTML")
     $i += 1
@@ -83,15 +83,48 @@ do {
     <# Condition that stops the loop if it returns true #>
     $null -ne $tableBody.displayed       
 )
+write-host "retrieval of html body was succesful!"
+
+
+write-host "click on button to sort advisories on publisheddate - ascending"
+#column with all the headers in it
+$tableheadercolumn = $Driver.FindElementByClassName("dds__thead")
+$individualTableHeaders = $tableheadercolumn.FindElementsByClassName("dds__th")
+
+<#
+0 - impact 
+1 - titel
+2 - type 
+3 - CVE id
+4 - published
+5 - updated
+#>
+#click on published tab
+$individualTableHeaders[4].click()
+
+#find action menu that gets triggered by the click
+$ActiveActionmenu = $Driver.FindElementByClassName("dds__action-menu__container--visible")
+
+# $ActiveActionmenu .GetAttribute("outerHTML")
+
+$buttons = $activeActionMenu.FindElementsByTagName("button")
+<#buttons!
+0 - unsorted
+1 - ascending
+2 - descending 
+#>
+
+#click on descending
+$buttons[2].click()
 
 
 # # Find the table body element
-# $tableBody = $driver.FindElementByClassName("dds__tbody")
+$tableBody = $driver.FindElementByClassName("dds__tbody")
 
 # Get all the rows in the table body
 $rows = $tableBody.FindElementsByClassName("dds__tr")
 
-
+#loop thorugh all table elements, and parse them. 
 $advisories = $rows | ForEach-Object -ThrottleLimit 10 -Parallel {
     $columns = $_.FindElementsByClassName("dds__td")
 
