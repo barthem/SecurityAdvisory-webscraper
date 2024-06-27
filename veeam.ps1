@@ -96,7 +96,7 @@ $dateoftoday = (get-date).ToString("yyyy-MM-dd")
 
 #check of er vandaag iets nieuws gepost is, zo ja post het dan. 
 $articleData | foreach-object {
-    write-host "processing $($_.Name) $($_.Title)"
+    write-host "processing $($_.Name) $($_.Title) `npublished: $($_.DatePublished)`n"
     
     if ($_.DatePublished -eq $dateoftoday ) {
 
