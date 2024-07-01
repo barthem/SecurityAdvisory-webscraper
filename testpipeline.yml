@@ -1,0 +1,77 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+# disable CI and enable schedule
+pr: none 
+trigger: none 
+schedules:
+- cron: '30 21 * * *'
+  displayName: "Check voor nieuwe  advisories iedere dag om 23:30"
+  branches:
+    include: [ master ]
+  always: true # Whether to always run the pipeline or only if there have been source code changes since the last successful scheduled run. The default is false
+
+
+pool:
+  vmImage: windows-latest
+
+steps:
+- checkout: self
+  persistCredentials: true
+  fetchDepth: 0
+
+- task: PowerShell@2
+  displayName: install firerfox
+  inputs:
+    targetType: 'inline'
+    script: |
+      $url = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
+      $output = "$env:Temp\vc_redist.exe"
+      Invoke-WebRequest -Uri $url -OutFile $output
+      Start-Process -FilePath $output -ArgumentList '/S' -Wait -NoNewWindow
+
+- task: PowerShell@2
+  displayName: install vc redistibute
+  inputs:
+    targetType: 'inline'
+    script: |
+      $url = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+      $output = "$env:Temp\vc_redist.exe"
+      Invoke-WebRequest -Uri $url -OutFile $output
+      Start-Process -FilePath $output -ArgumentList '/install', '/quiet', '/norestart' -Wait -NoNewWindow
+
+- task: PowerShell@2
+  displayName: installing selenium
+  inputs:
+    targetType: 'inline'
+    script: 'install-module selenium -Confirm:$False -Force'
+    pwsh: true
+
+
+- task: PowerShell@2
+  displayName: 'get broadcom vmwar security advisories'
+  inputs:
+    targetType: filePath
+    filePath: ./vmware.ps1
+    pwsh: true
+  continueOnError: true
+
+
+- task: PowerShell@2
+  displayName: 'get veeam security advisories'
+  inputs:
+    targetType: filePath
+    filePath: ./veeam.ps1
+    pwsh: true
+  continueOnError: true
+
+
+# - task: PowerShell@2
+#   displayName: 'get dell security advisories'
+#   inputs:
+#     targetType: filePath
+#     filePath: ./dell.ps1
+#     pwsh: true
+#   continueOnError: true

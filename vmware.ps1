@@ -59,7 +59,13 @@ $Driver.Navigate().GoToUrl($url)
 $i = 0
 do {
     write-host "reading tbody"
-    $tablecontent = $Driver.FindElementByTagName("tbody")
+    try {
+        $tablecontent = $Driver.FindElementByTagName("tbody")
+    }
+    catch {
+        write-host "failed to read tbody, trying again. attempt number $i"
+    }
+
     # $tablecontent.GetAttribute("outerHTML")
     $i += 1
 
