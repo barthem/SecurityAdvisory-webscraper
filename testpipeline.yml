@@ -50,28 +50,28 @@ steps:
     pwsh: true
 
 
-- task: PowerShell@2
-  displayName: 'get broadcom vmwar security advisories'
-  inputs:
-    targetType: filePath
-    filePath: ./vmware.ps1
-    pwsh: true
-  continueOnError: true
-
-
-- task: PowerShell@2
-  displayName: 'get veeam security advisories'
-  inputs:
-    targetType: filePath
-    filePath: ./veeam.ps1
-    pwsh: true
-  continueOnError: true
+# - task: PowerShell@2
+#   displayName: 'get broadcom vmwar security advisories'
+#   inputs:
+#     targetType: filePath
+#     filePath: ./vmware.ps1
+#     pwsh: true
+#   continueOnError: true
 
 
 # - task: PowerShell@2
-#   displayName: 'get dell security advisories'
+#   displayName: 'get veeam security advisories'
 #   inputs:
 #     targetType: filePath
-#     filePath: ./dell.ps1
+#     filePath: ./veeam.ps1
 #     pwsh: true
 #   continueOnError: true
+
+
+- task: PowerShell@2
+  displayName: 'get dell security advisories'
+  inputs:
+    targetType: filePath
+    filePath: ./dell.ps1
+    pwsh: true
+  continueOnError: true
