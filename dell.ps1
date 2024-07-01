@@ -175,13 +175,13 @@ $dateoftoday = (get-date).ToString("MMM dd yyyy").ToUpper()
 
 #check if a new advisory was posted today, if yes post to teams 
 $advisories | foreach-object {
-    write-host "processing  $($_.Title) `npublished: "
+    write-host "processing  $($_.Title) `npublished: $($_.Published)`n"
 
     
     #compare published to date of today
     if ($_.Published -eq $dateoftoday ) {
         Write-Host " article $($_.Title) is from today!. posting it to teams"
-        # Send-TeamsNotification -Issue $_ -WebhookUrl $webhookUrl
+        Send-TeamsNotification -Issue $_ -WebhookUrl $webhookUrl
     }
 }
 
