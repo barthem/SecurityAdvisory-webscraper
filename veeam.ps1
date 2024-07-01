@@ -57,7 +57,6 @@ $articles = $Driver.FindElementsByClassName($classname)
 
 # Loop through each article and extract the required information
 $articleData = $articles | foreach-object -Parallel {
-    write-host "processing article..."
     $article = $_
 
     $name = $article.FindElementByClassName("knowledge-base-listing__article-id").Text
@@ -89,6 +88,7 @@ $articleData = $articles | foreach-object -Parallel {
         DatePublished = $datePublished
         Product       = $product
     }
+    write-host "processing article $title"
 }
 
 # vraag de datum vandaag op. 
