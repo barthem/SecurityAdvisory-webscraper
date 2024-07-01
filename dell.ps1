@@ -65,6 +65,9 @@ function Send-TeamsNotification {
 $Driver = Start-SeFirefox -Fullscreen 
 $Driver.Navigate().GoToUrl($url)
 
+#set the windowsize big, else elements are hidden. 
+$Driver.Manage().Window.Size = New-Object System.Drawing.Size(2000, 2000)
+
 #try reading the pbody max 5 times. 
 $i = 0
 do {
@@ -131,59 +134,56 @@ $buttons = $tableheadercolumn[4].FindElementsByTagName("button")
 $buttons[2].click()
 
 
-# $Driver.FindElementByXPath("/html/body/div[7]/div/ul/li[2]/button").click()
+# # Find the table body element
+$tableBody = $driver.FindElementByClassName("dds__tbody")
+
+# Get all the rows in the table body
+$rows = $tableBody.FindElementsByClassName("dds__tr")
+
+#loop thorugh all table elements, and parse them. 
+$advisories = $rows | ForEach-Object -ThrottleLimit 10 -Parallel {
+    $columns = $_.FindElementsByClassName("dds__td")
+
+    # Assuming columns are structured as:
+    # 0 - Impact, 1 - Title with Link, 2 - Type, 3 - CVE ID, 4 - Published Date, 5 - Updated Date
+
+    # Get the <a> tag from the Title column to extract the url and title
+    $titleLink = $columns[1].FindElementByTagName("a")
+
+    $entry = [PSCustomObject]@{
+        Impact     = $columns[0].Text
+        Title      = $titleLink.GetAttribute("innerText")        
+        ArticleUrl = $titleLink.GetAttribute("href")
+        Type       = $columns[2].Text
+        CVE_ID     = $columns[3].Text -replace '<.*?>', '' # Clean any HTML tags if present
+        Published  = $columns[4].Text
+        Updated    = $columns[5].Text
+    }
+    $entry
+    write-host "done parsing $($entry.Title)"
+}
 
 
-# # # Find the table body element
-# $tableBody = $driver.FindElementByClassName("dds__tbody")
+#create a regexpattern from all the products in the whitelist 
+$regexPattern = ($whitelist | ForEach-Object { [regex]::Escape($_) }) -join '|'
 
-# # Get all the rows in the table body
-# $rows = $tableBody.FindElementsByClassName("dds__tr")
+#remove entries that dont contain the whitelisted keywords
+$advisories = $advisories |Where-Object {$_.Title -match $regexPattern}
 
-# #loop thorugh all table elements, and parse them. 
-# $advisories = $rows | ForEach-Object -ThrottleLimit 10 -Parallel {
-#     $columns = $_.FindElementsByClassName("dds__td")
+# get date of today, in the format of the security advisory. 
+$dateoftoday = (get-date).ToString("MMM dd yyyy").ToUpper()
 
-#     # Assuming columns are structured as:
-#     # 0 - Impact, 1 - Title with Link, 2 - Type, 3 - CVE ID, 4 - Published Date, 5 - Updated Date
-
-#     # Get the <a> tag from the Title column to extract the url and title
-#     $titleLink = $columns[1].FindElementByTagName("a")
-
-#     $entry = [PSCustomObject]@{
-#         Impact     = $columns[0].Text
-#         Title      = $titleLink.GetAttribute("innerText")        
-#         ArticleUrl = $titleLink.GetAttribute("href")
-#         Type       = $columns[2].Text
-#         CVE_ID     = $columns[3].Text -replace '<.*?>', '' # Clean any HTML tags if present
-#         Published  = $columns[4].Text
-#         Updated    = $columns[5].Text
-#     }
-#     $entry
-#     write-host "done parsing $($entry.Title)"
-# }
-
-
-# #create a regexpattern from all the products in the whitelist 
-# $regexPattern = ($whitelist | ForEach-Object { [regex]::Escape($_) }) -join '|'
-
-# #remove entries that dont contain the whitelisted keywords
-# $advisories = $advisories |Where-Object {$_.Title -match $regexPattern}
-
-# # get date of today, in the format of the security advisory. 
-# $dateoftoday = (get-date).ToString("MMM dd yyyy").ToUpper()
-
-# #check if a new advisory was posted today, if yes post to teams 
-# $advisories | foreach-object {
-#     write-host "processing  $($_.Title) `npublished: "
+#check if a new advisory was posted today, if yes post to teams 
+$advisories | foreach-object {
+    write-host "processing  $($_.Title) `npublished: "
 
     
-#     #compare published to date of today
-#     if ($_.Published -eq $dateoftoday ) {
-#         Write-Host " article $($_.Title) is from today!. posting it to teams"
-#         # Send-TeamsNotification -Issue $_ -WebhookUrl $webhookUrl
-#     }
-# }
+    #compare published to date of today
+    if ($_.Published -eq $dateoftoday ) {
+        Write-Host " article $($_.Title) is from today!. posting it to teams"
+        # Send-TeamsNotification -Issue $_ -WebhookUrl $webhookUrl
+    }
+}
 
-# # Close the Selenium driver
-# $Driver.Quit()
+# Close the Selenium driver
+$Driver.Quit()
