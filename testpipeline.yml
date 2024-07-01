@@ -22,50 +22,50 @@ steps:
   persistCredentials: true
   fetchDepth: 0
 
-- task: PowerShell@2
-  displayName: install firerfox
-  inputs:
-    targetType: 'inline'
-    script: |
-      $url = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
-      $output = "$env:Temp\vc_redist.exe"
-      Invoke-WebRequest -Uri $url -OutFile $output
-      Start-Process -FilePath $output -ArgumentList '/S' -Wait -NoNewWindow
+# - task: PowerShell@2
+#   displayName: install firerfox
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       $url = "https://download.mozilla.org/?product=firefox-latest&os=win64&lang=en-US"
+#       $output = "$env:Temp\vc_redist.exe"
+#       Invoke-WebRequest -Uri $url -OutFile $output
+#       Start-Process -FilePath $output -ArgumentList '/S' -Wait -NoNewWindow
 
-- task: PowerShell@2
-  displayName: install vc redistibute
-  inputs:
-    targetType: 'inline'
-    script: |
-      $url = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
-      $output = "$env:Temp\vc_redist.exe"
-      Invoke-WebRequest -Uri $url -OutFile $output
-      Start-Process -FilePath $output -ArgumentList '/install', '/quiet', '/norestart' -Wait -NoNewWindow
+# - task: PowerShell@2
+#   displayName: install vc redistibute
+#   inputs:
+#     targetType: 'inline'
+#     script: |
+#       $url = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+#       $output = "$env:Temp\vc_redist.exe"
+#       Invoke-WebRequest -Uri $url -OutFile $output
+#       Start-Process -FilePath $output -ArgumentList '/install', '/quiet', '/norestart' -Wait -NoNewWindow
 
-- task: PowerShell@2
-  displayName: installing selenium
-  inputs:
-    targetType: 'inline'
-    script: 'install-module selenium -Confirm:$False -Force'
-    pwsh: true
-
-
-- task: PowerShell@2
-  displayName: 'get broadcom vmwar security advisories'
-  inputs:
-    targetType: filePath
-    filePath: ./vmware.ps1
-    pwsh: true
-  continueOnError: true
+# - task: PowerShell@2
+#   displayName: installing selenium
+#   inputs:
+#     targetType: 'inline'
+#     script: 'install-module selenium -Confirm:$False -Force'
+#     pwsh: true
 
 
-- task: PowerShell@2
-  displayName: 'get veeam security advisories'
-  inputs:
-    targetType: filePath
-    filePath: ./veeam.ps1
-    pwsh: true
-  continueOnError: true
+# - task: PowerShell@2
+#   displayName: 'get broadcom vmwar security advisories'
+#   inputs:
+#     targetType: filePath
+#     filePath: ./vmware.ps1
+#     pwsh: true
+#   continueOnError: true
+
+
+# - task: PowerShell@2
+#   displayName: 'get veeam security advisories'
+#   inputs:
+#     targetType: filePath
+#     filePath: ./veeam.ps1
+#     pwsh: true
+#   continueOnError: true
 
 
 # - task: PowerShell@2
@@ -75,3 +75,9 @@ steps:
 #     filePath: ./dell.ps1
 #     pwsh: true
 #   continueOnError: true
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      $resolution = Get-WmiObject -Class Win32_VideoController | Select-Object -ExpandProperty VideoModeDescription
+      $resolution
