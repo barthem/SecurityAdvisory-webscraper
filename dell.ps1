@@ -2,7 +2,7 @@ Import-Module Selenium
 
 # Setup the URL and the driver
 $url = "https://www.dell.com/support/security/en-us"
-# $webhookUrl = "https://ogd.webhook.office.com/webhookb2/e268ccf5-d2fd-4cb2-abbe-90f7fe7720ea@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/f4a9cfcb58d44b9e90d5cf900720edd1/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
+$webhookUrl = "https://ogd.webhook.office.com/webhookb2/e268ccf5-d2fd-4cb2-abbe-90f7fe7720ea@afca0a52-882c-4fa8-b71d-f6db2e36058b/IncomingWebhook/f4a9cfcb58d44b9e90d5cf900720edd1/72a09449-2f5e-491b-8cb4-2c2ebf993f92"
 
 #only post items if they contain one of these keywords. 
 $whitelist = @(
